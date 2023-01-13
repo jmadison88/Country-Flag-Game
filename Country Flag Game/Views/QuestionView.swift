@@ -8,39 +8,61 @@
 import SwiftUI
 
 struct QuestionView: View {
+    @EnvironmentObject var quizManager: QuizManager
     var body: some View {
-        VStack(spacing: 20) {
-            HStack {
-                ProgressBar(progress: 50)
-                VStack(spacing: 20) {
+        if quizManager.playingGame {
+            VStack(spacing: 20) {
+                HStack {
+                    ProgressBar(progress: quizManager.progress)
                     Text("Which country's flag is this")
                         .font(.title)
-                    Image("Italy")
+                    Image(quizManager.country)
                         .resizable()
                         .frame(width: 300, height: 200)
-                    AnswerRow(answer: Answer(text: "France", isCorrect: false))
-                    AnswerRow(answer: Answer(text: "Germany", isCorrect: false))
-                    AnswerRow(answer: Answer(text: "Italy", isCorrect: true))
-                    AnswerRow(answer: Answer(text: "England", isCorrect: false))
+                    ForEach(quizManager.answerChoices) { answer in
+                        AnswerRow(answer: answer)
+                            .environmentObject(quizManager)
+                    }
                 }
-                CustomButton(text: "Next")
+                Button {
+                    quizManager.goToNextQuestion()
+                } label: {
+                    CustomButton(text: "Next", background: quizManager.answerSelected ? .yellow: .gray)
+                }
+                .disabled(!quizManager.answerSelected)
                 Spacer()
                 Text("Country Flag Quiz")
                     .foregroundColor(.yellow)
                     .font(.title)
                     .fontWeight(.heavy)
                 Spacer()
-                Text("1 out of 3")
+                Text("\(quizManager.index) out of \(quizManager.questions.count)")
                     .foregroundColor(.yellow)
                     .fontWeight(.heavy)
             }
+            .padding()
+            .frame(width: .infinity, height: .infinity)
+            .background(.cyan)
         }
-        .padding()
-        .frame(width: .infinity, height: .infinity)
-        .background(.cyan)
+        else {
+            VStack(spacing: 20) {
+                Text("Country Flag Quiz")
+                    .font(.title)
+                Text("Congratuations! You have completed the quiz.")
+                Text("You scored \(quizManager.score) out of \(quizManager.questions.count)")
+                Button {
+                    quizManager.reset()
+                } label: {
+                    CustomButton(text: "Play Again")
+                }
+            }
+            .foregroundColor(.yellow)
+            .padding()
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(.cyan)
+        }
     }
 }
-
 struct QuestionView_Previews: PreviewProvider {
     static var previews: some View {
         QuestionView()
