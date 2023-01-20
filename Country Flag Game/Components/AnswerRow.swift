@@ -9,6 +9,7 @@ import SwiftUI
 
 struct AnswerRow: View {
     var answer: Answer
+    @EnvironmentObject var quizManager: QuizManager
     @State private var isSelected = false
     var body: some View {
         HStack(spacing: 20) {
@@ -23,16 +24,18 @@ struct AnswerRow: View {
             }
         }
         .padding()
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(width: 300, alignment: .leading)
         .background(.white)
         .cornerRadius(10)
         .shadow(color: isSelected ? (answer.isCorrect ? .green : .red) : .gray, radius: 5, x: 0.5, y: 0.5)
-        onTapGesture {
-            isSelected = true
+        .onTapGesture {
+            if !quizManager.answerSelected {
+                isSelected = true
+                quizManager.selectAnswer(answer: answer)
+            }
         }
     }
 }
-
 struct AnswerRow_Previews: PreviewProvider {
     static var previews: some View {
         AnswerRow(answer: Answer(text: "Test", isCorrect: true))

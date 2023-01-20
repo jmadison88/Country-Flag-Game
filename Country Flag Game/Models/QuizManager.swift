@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftUI
 
 class QuizManager: ObservableObject {
     var questions = Data().questions
